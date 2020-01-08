@@ -1,54 +1,62 @@
 import React, { useEffect, useState } from 'react'
 import { View, FlatList, StyleSheet, ScrollView, SafeAreaView } from 'react-native'
+import { connect } from 'react-redux'
+import { searchChange, getMovies } from '../actions'
 
-import { Header, ImageCard } from '../components/uikit'
+import { Header, ImageCard, SearchBar } from '../components/uikit'
 import { STARGATE_DETAILS } from '../routes';
 
-const url = 'http://api.tvmaze.com/search/shows?q=stargate';
+const HomeScreen = props => {
+  const { navigation, movie, searchChange, getMovies, data } = props
+  const [visibleSearchBar, setVisibleSearchBar] = useState(false)
 
-export const HomeScreen = ({ navigation }) => {
-  const [data, setData] = useState([])
-
-  const getData = async (url) => {
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      setData(data)
-    } catch (error) {
-      console.error(error)
-    }
-    
+  const onChange = text => {
+    searchChange(text)
   }
 
   useEffect(() => {
-    getData(url)
-  }, [])
+    getMovies(movie)
+  }, [movie])
+
   return (
     <SafeAreaView style={{flex: 1}}>
-        <Header 
-          title="Star Gate"
-          leftIcon="ios-menu"
-          leftColor="#fff"
-          onPress={() => navigation.openDrawer()}
-        />
-          <ScrollView>
-            <FlatList
-              style={styles.list}
-              data={data}
-              keyExtractor={item => item.show.id.toString()}
-              horizontal={false}
-              numColumns={2}
-              renderItem={({item}) => (
-                  <ImageCard
-                    title={item.show.name}
-                    src={item.show.image.original}
-                    onPress={() => navigation.navigate(
-                        STARGATE_DETAILS,
-                        (item)
-                    )}
-                  />
-              )}
+        {
+          visibleSearchBar
+          ? <SearchBar
+            colorRight="#fff"
+            iconRight="magnify"
+            placeholder="Search"
+            onChangeText={onChange}
+            value={movie}
+            onPressRight={() => setVisibleSearchBar(false)}
+            onBlur={() => setVisibleSearchBar(true)}
+          />
+          : <Header 
+              title="Star Gate"
+              colorRight="#fff"
+              iconRight="magnify"
+              onPress={() => navigation.openDrawer()}
+              onPressRight={() => setVisibleSearchBar(true)}
             />
+        }
+          <ScrollView>
+              <FlatList
+                  style={styles.list}
+                  data={data}
+                  keyExtractor={item => item.show.id.toString()}
+                  horizontal={false}
+                  numColumns={2}
+                  renderItem={({item}) => (
+                      <ImageCard
+                        title={item.show.name}
+                        src={item.show.image}
+                        onPress={() => navigation.navigate(
+                            STARGATE_DETAILS,
+                            (item)
+                        )}
+                      />
+                  )}
+                />
           </ScrollView>
     </SafeAreaView>
   );
@@ -57,6 +65,11 @@ export const HomeScreen = ({ navigation }) => {
 HomeScreen.navigationOptions = {
     headerMode: 'none'
   }
+
+export default connect(state => ({
+  movie: state.search.movie,
+  data: state.search.data,
+}), { searchChange, getMovies })(HomeScreen);
 
 const styles = StyleSheet.create({
   list: {

@@ -4,15 +4,11 @@ import { width, height } from '../../constants'
 
 export const ImageCard = ({src, title, onPress}) => {
     const {container, sub, h1, cover} = styles;
-
     return (
         <TouchableOpacity onPress={onPress}>
             <View style={container}>
                 <View style={sub} >
-                    <Image
-                        style={cover}
-                        source={{uri: src}} 
-                    />
+                    { src && <Image style={cover} source={{uri: src.medium}} /> }
                 </View>
                 <Text style={h1}>{ title }</Text>
             </View>

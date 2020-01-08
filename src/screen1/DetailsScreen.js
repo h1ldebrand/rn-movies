@@ -10,9 +10,9 @@ export const DetailsScreen = ({ navigation }) => {
     return(
         <View style={container}>
             <Header title={name} 
-                leftIcon="ios-arrow-back"
-                leftColor="#fff"
-                onPress={() => navigation.goBack()}
+                iconLeft="ios-arrow-back"
+                colorLeft="#fff"
+                onPressLeft={() => navigation.goBack()}
             />
             <ScrollView>
                 <View style={sub}>
